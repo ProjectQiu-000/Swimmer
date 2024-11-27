@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swim Timer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-image: url('pic.jpg'); /* ใช้ภาพพื้นหลัง */
+            background-size: cover;       /* ภาพเต็มจอ */
+            background-position: center;  /* ภาพอยู่ตรงกลาง */
+            background-repeat: no-repeat; /* ไม่วนซ้ำ */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: rgba(255, 255, 255, 0.9); /* สีพื้นหลังโปร่งแสง */
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: #00796b;
+            margin-bottom: 20px;
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 64px;
+            color: #004d40;
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #b2dfdb;
+            border-radius: 10px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+
+        .buttons button {
+            flex: 1;
+            margin: 0 5px;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        #start {
+            background-color: #00796b;
+        }
+
+        #stop {
+            background-color: #d32f2f;
+        }
+
+        #reset {
+            background-color: #0288d1;
+        }
+
+        .set-timer {
+            background-color: #e0f2f1;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .set-timer label {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 5px;
+            color: #00796b;
+        }
+
+        .set-timer input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #b2dfdb;
+            border-radius: 5px;
+        }
+
+        .history {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            color: #01579b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">Swim Timer</div>
+        <div class="timer" id="timer">00:00</div>
+        <div class="buttons">
+            <button id="start">เริ่ม</button>
+            <button id="stop">หยุด</button>
+            <button id="reset">รีเซ็ต</button>
+        </div>
+        <div class="set-timer">
+            <label for="round-time">ตั้งเวลาต่อรอบ (วินาที):</label>
+            <input type="number" id="round-time" placeholder="ป้อนเวลาที่ต้องการ (สูงสุด 999 วินาที)" max="999">
+        </div>
+        <div class="history" id="history">ประวัติจะปรากฏที่นี่...</div>
+    </div>
+
+    <script>
+        let timerInterval;
+        let time = 0;
+        let roundTime = 0;
+        let isRunning = false;
+
+        const timerDisplay = document.getElementById('timer');
+        const history = document.getElementById('history');
+        const roundInput = document.getElementById('round-time');
+
+        document.getElementById('start').addEventListener('click', () => {
+            if (isRunning) return; // ป้องกันการเริ่มซ้ำ
+            isRunning = true;
+            startTimer();
+        });
+
+        document.getElementById('stop').addEventListener('click', () => {
+            clearInterval(timerInterval);
+            isRunning = false;
+        });
+
+        document.getElementById('reset').addEventListener('click', () => {
+            clearInterval(timerInterval);
+            time = 0;
+            isRunning = false;
+            updateTimerDisplay();
+            history.innerHTML = 'ประวัติจะปรากฏที่นี่...';
+        });
+
+        roundInput.addEventListener('change', () => {
+            const value = parseInt(roundInput.value) || 0;
+            if (value > 999) {
+                roundInput.value = 999;
+            }
+            roundTime = value;
+        });
+
+        function updateTimerDisplay() {
+            const minutes = String(Math.floor(time / 60)).padStart(2, '0');
+            const seconds = String(time % 60).padStart(2, '0');
+            timerDisplay.textContent = `${minutes}:${seconds}`;
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                time++;
+                updateTimerDisplay();
+                if (roundTime > 0 && time % roundTime === 0) {
+                    const round = time / roundTime;
+                    history.innerHTML += `<div>รอบที่ ${round}: ${timerDisplay.textContent}</div>`;
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
